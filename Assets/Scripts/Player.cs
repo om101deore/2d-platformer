@@ -10,19 +10,27 @@ public class Player : MonoBehaviour
     [Header("Jump Parameter")]
     private bool _canJump = true;
     [SerializeField] private float _jumpForce;
-    [SerializeField] private float _sideJumpForce;
     [SerializeField] private float CAYOTE_TIME = 0.5f;
     float _cayoteTime ;
 
+    [Header("wall Components")]
+    [SerializeField] private float _wallJumpForce;
+    private bool wallJumpable;
     
     [Header("Components")]
     private Rigidbody2D rigidbody2D;
     private BoxCollider2D boxCollider2D;
-    [SerializeField] LayerMask platformLayer;
+    private SpriteRenderer spriteRenderer;
+
+    [Header("GameObjects")]
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private Transform wallCheck;
+    [SerializeField] private LayerMask platformLayer;
 
     private void Start() {
         rigidbody2D = GetComponent<Rigidbody2D>();
         boxCollider2D = GetComponent<BoxCollider2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
 
@@ -54,6 +62,7 @@ public class Player : MonoBehaviour
 
     private void jumpMovement(){
         
+        Debug.Log(Physics2D.OverlapCircle(groundCheck.position, 0.2f, platformLayer));
 
             if (Input.GetButtonDown("Jump") && isGrounded())
             {
@@ -68,22 +77,23 @@ public class Player : MonoBehaviour
 
     }
 
+    private void wallJump(){
+
+    }
+
     private bool isGrounded(){
-        float extraHeight = .2f;
-        float extraWidth = .1f;
-
-        RaycastHit2D raycastHit = Physics2D.Raycast(boxCollider2D.bounds.center, Vector2.down,boxCollider2D.bounds.extents.y + extraHeight, platformLayer);
-        RaycastHit2D raycastHitLeft = Physics2D.Raycast(boxCollider2D.bounds.center, Vector2.left,boxCollider2D.bounds.extents.x + extraWidth, platformLayer);
-        RaycastHit2D raycastHitRight = Physics2D.Raycast(boxCollider2D.bounds.center, Vector2.right,boxCollider2D.bounds.extents.x + extraWidth, platformLayer);
+        return Physics2D.OverlapCircle(groundCheck.position,0.2f,platformLayer);
         
+    }
 
-        if (raycastHit.collider == null && raycastHitLeft.collider == null && raycastHitRight.collider == null ){
-            return false;
-        }
-        else{
-            return true;        
-        }
+    private bool isWalled(){
+        return Physics2D.OverlapCircle(wallCheck.position,0.2f,platformLayer);
         
+    }
+
+    private void Flip(){
+        
+        spriteRenderer.transform.localScale = new Vector3(((int)_direction), spriteRenderer.transform.localScale.y,spriteRenderer.transform.localScale.z);
     }
 
     
