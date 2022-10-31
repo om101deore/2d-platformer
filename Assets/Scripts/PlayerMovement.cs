@@ -5,7 +5,7 @@ public class PlayerMovement : MonoBehaviour
 {
     private float horizontal;
     private float speed = 5f;
-    private float jumpingPower = 20f;
+    private float jumpingPower = 7f;
     private bool isFacingRight = true;
 
     private bool canDash = true;

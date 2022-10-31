@@ -64,9 +64,12 @@ public class Player : MonoBehaviour
         
         Debug.Log(Physics2D.OverlapCircle(groundCheck.position, 0.2f, platformLayer));
 
-            if (Input.GetButtonDown("Jump") && isGrounded())
-            {
-                rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, _jumpForce);
+            if (Input.GetButtonDown("Jump"))
+            {   
+                if(isGrounded())
+                    rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, _jumpForce);
+
+               
             }
 
             if (Input.GetButtonUp("Jump") && rigidbody2D.velocity.y > 0f)
