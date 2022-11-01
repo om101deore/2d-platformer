@@ -2,10 +2,10 @@ using System.Collections;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
-{
+{ 
     private float horizontal;
-    private float speed = 5f;
-    private float jumpingPower = 7f;
+    private float speed = 8f;
+    private float jumpingPower = 16f;
     private bool isFacingRight = true;
 
     private bool canDash = true;
@@ -14,14 +14,20 @@ public class PlayerMovement : MonoBehaviour
     private float dashingTime = 0.2f;
     private float dashingCooldown = 1f;
 
+    private bool isWallSliding;
+    private float wallSlidingSpeed = 2f;
+
+    private bool isWallJumping;
+    private float wallJumpingDirection;
+    private float wallJumpTime = 2f;
+    private float wallJumpCounter;
+
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Transform groundCheck;
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private TrailRenderer tr;
+    [SerializeField] private Transform wallCheck;
 
-    private void Start() {
-        rb = GetComponent<Rigidbody2D>();
-    }
     private void Update()
     {
         if (isDashing)
@@ -38,7 +44,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetButtonUp("Jump") && rb.velocity.y > 0f)
         {
-            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.7f);
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
         }
 
         if (Input.GetKeyDown(KeyCode.LeftShift) && canDash)
@@ -47,6 +53,8 @@ public class PlayerMovement : MonoBehaviour
         }
 
         Flip();
+
+        // wallSlide();
     }
 
     private void FixedUpdate()
@@ -55,7 +63,6 @@ public class PlayerMovement : MonoBehaviour
         {
             return;
         }
-        //dbiuwbdiuabuiw
 
         rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
     }
@@ -63,6 +70,11 @@ public class PlayerMovement : MonoBehaviour
     private bool IsGrounded()
     {
         return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
+    }
+
+    private bool IsWalled()
+    {
+        return Physics2D.OverlapCircle(wallCheck.position, 0.2f, groundLayer);
     }
 
     private void Flip()
@@ -90,5 +102,17 @@ public class PlayerMovement : MonoBehaviour
         isDashing = false;
         yield return new WaitForSeconds(dashingCooldown);
         canDash = true;
+    }
+
+
+    private void wallSlide(){
+
+        if(IsWalled() && !IsGrounded() && horizontal != 0){
+            isWallSliding = true;
+            rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(-rb.velocity.y, -wallSlidingSpeed, float.MaxValue ));
+
+        } else {
+            isWallSliding = false;
+        }
     }
 }

@@ -6,16 +6,18 @@ public class Player : MonoBehaviour
     [SerializeField] private float _walkSpeed;
     [SerializeField] private float _runSpeed;
     private float _direction;
+    private bool isFacingRight;
 
     [Header("Jump Parameter")]
     private bool _canJump = true;
     [SerializeField] private float _jumpForce;
-    [SerializeField] private float CAYOTE_TIME = 0.5f;
-    float _cayoteTime ;
-
-    [Header("wall Components")]
-    [SerializeField] private float _wallJumpForce;
-    private bool wallJumpable;
+    
+    [Header("wall Jump Components")]
+    private bool canLeftWallJump ;
+    private bool hasWallJumpedLeft = false;
+    private bool canRightWallJump;
+    private bool hasWallJumpedRight = false;
+    
     
     [Header("Components")]
     private Rigidbody2D rigidbody2D;
@@ -24,7 +26,8 @@ public class Player : MonoBehaviour
 
     [Header("GameObjects")]
     [SerializeField] private Transform groundCheck;
-    [SerializeField] private Transform wallCheck;
+    [SerializeField] private Transform wallCheckLeft;
+    [SerializeField] private Transform wallCheckRight;
     [SerializeField] private LayerMask platformLayer;
 
     private void Start() {
@@ -43,9 +46,7 @@ public class Player : MonoBehaviour
         jumpMovement();
 
         // cayote time
-        _cayoteTime -= Time.deltaTime;
-
-    }    
+    }   
 
     
     private void OnTriggerEnter2D(Collider2D other) {
@@ -62,43 +63,64 @@ public class Player : MonoBehaviour
 
     private void jumpMovement(){
         
-        Debug.Log(Physics2D.OverlapCircle(groundCheck.position, 0.2f, platformLayer));
+            Debug.Log("left-" + canLeftWallJump);
+            Debug.Log("Right-" + canRightWallJump);
 
-            if (Input.GetButtonDown("Jump"))
-            {   
-                if(isGrounded())
-                    rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, _jumpForce);
+   
+            if(isGrounded() && Input.GetButtonDown("Jump") )
+                rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, _jumpForce);
 
-               
-            }
-
-            if (Input.GetButtonUp("Jump") && rigidbody2D.velocity.y > 0f)
+            if (Input.GetButtonDown("Jump") && canLeftWallJump && isLeftWalled() )
             {
+                rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, _jumpForce);
+                canLeftWallJump = false;
+                canRightWallJump = true;
+            }             
+
+
+            if ( Input.GetButtonDown("Jump") && canRightWallJump && isRightWalled())
+            {
+                rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, _jumpForce);
+                canRightWallJump = false;
+                canLeftWallJump = true;
+            }   
+                
+        
+
+
+
+            
+            if (Input.GetButtonUp("Jump") && rigidbody2D.velocity.y > 0f)
+            {   
                 rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, rigidbody2D.velocity.y * 0.5f);
+                
             }
 
 
     }
 
-    private void wallJump(){
-
-    }
+    
 
     private bool isGrounded(){
+        canLeftWallJump = true;
+        canRightWallJump = true;
+
         return Physics2D.OverlapCircle(groundCheck.position,0.2f,platformLayer);
         
     }
 
-    private bool isWalled(){
-        return Physics2D.OverlapCircle(wallCheck.position,0.2f,platformLayer);
+    private bool isRightWalled(){
+        return Physics2D.OverlapCircle(wallCheckRight.position,0.2f,platformLayer);
         
     }
 
-    private void Flip(){
+    private bool isLeftWalled(){
+        return Physics2D.OverlapCircle(wallCheckLeft.position,0.2f,platformLayer);
         
-        spriteRenderer.transform.localScale = new Vector3(((int)_direction), spriteRenderer.transform.localScale.y,spriteRenderer.transform.localScale.z);
     }
+     
 
+  
     
     
 
